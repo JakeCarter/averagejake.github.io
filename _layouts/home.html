@@ -20,11 +20,6 @@ layout: default
 				{{ post.excerpt }}
 			{% endif %}
 		</div>
-		<ol class="tags">
-		{% for tag in post.tags %}
-			<li><a href="/tag/{{ tag }}">{{ tag }}</a></li>
-		{% endfor %}
-		</ol>
 		<a class="continue-reading-link" href="{{ post.url | absolute_url }}">more…</a>
 	</article>
 	{% endfor %}
