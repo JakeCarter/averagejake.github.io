@@ -9,7 +9,7 @@ paginate_path: "page/:num/"
 
 # custom
 date_format: "%a, %b %d, %Y"
-google_analytics: "UA-5806003-6"
+# google_analytics: "UA-5806003-6"
 
 plugins: [jekyll-paginate]
 
