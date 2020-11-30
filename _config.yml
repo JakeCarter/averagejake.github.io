@@ -1,5 +1,4 @@
 title: Thinking Out Loud
-#url: "http://averagejake.com"
 url: "https://jakecarter.github.io"
 permalink: "post/:title/"
 
@@ -9,15 +8,13 @@ paginate_path: "page/:num/"
 
 # custom
 date_format: "%a, %b %d, %Y"
-# google_analytics: "UA-5806003-6"
 
 plugins: [jekyll-paginate]
 
 # Build settings
 markdown: kramdown
-theme: minima
+remote_theme: "JakeCarter/averagejake-jekyll-theme"
 gems:
-  - jekyll-feed
   - jekyll-paginate
 exclude:
   - Gemfile
