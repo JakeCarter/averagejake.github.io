@@ -15,7 +15,7 @@ plugins: [jekyll-paginate]
 
 # Build settings
 markdown: kramdown
-remote_theme: averagejake-jekyll-theme
+remote_theme: JakeCarter/averagejake-jekyll-theme
 gems:
   - jekyll-feed
   - jekyll-paginate
