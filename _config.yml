@@ -13,7 +13,7 @@ plugins: [jekyll-paginate]
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-slate
+theme: "JakeCarter/averagejake-jekyll-theme"
 gems:
   - jekyll-paginate
 exclude:
