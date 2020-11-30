@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		
+		<title>UIBarButtonItem and Custom Views – Thinking Out Loud</title>	
+		<meta name="description" content="First things first. UIBarButtonItems are not views. They’re more akin to model level objects. You create them and set up styling on them, but the framework c...">
+	
+		<!-- CSS -->
+		<link rel="stylesheet" href="/assets/main.css">
+		<link rel="canonical" href="http://0.0.0.0:4000/post/uibarbuttonitem-and-custom-views/">
+
+		<!-- Icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png?v=3">
+		<link rel="shortcut icon" href="/assets/favicon.png?v=2">
+	
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="Thinking Out Loud" href="/feed.xml">	
+		
+		<!-- Micro.blog -->
+		<link href="https://micro.blog/jakecarter" rel="me" />
+		
+		
+	</head>
+	<body>
+		<header>
+            <h1><a href="http://0.0.0.0:4000/post/uibarbuttonitem-and-custom-views/">Thinking Out Loud</a></h1>
+		</header>
+		<div id="content-wrapper">
+			<section class="content">
+	<article class="post">
+		<h2><a href="/post/uibarbuttonitem-and-custom-views/">UIBarButtonItem and Custom Views</a></h2>
+		<div class="date">Tue, Apr 28, 2015</div>
+		<ol class="tags">
+		
+			<li><a href="/tag/uibarbuttonitem">uibarbuttonitem</a></li>
+		
+			<li><a href="/tag/ios-dev">ios-dev</a></li>
+		
+		</ol>
+		
+		<p>First things first. UIBarButtonItems are <strong>not</strong> views. They’re more akin to model level objects. You create them and set up styling on them, but the framework converts their properties into actual UIView subclasses. And this is were the majority of problems that I have with UIBarButtonItem come from.</p>
+
+<h2 id="my-most-recent-problem">My Most Recent Problem</h2>
+<p>Most recently I’ve had an issue with resizing a UIBarButtonItem’s custom view when the UIToolbar it’s in resizes into its compact size. (This happens in compact-compact environments.) Standard UIBarButtonItems — either system ones or those initialized with a title or image — will resize automatically to handle the smaller height of the UIToolbar. UIBarButtonItems initialized with a custom view do not seem to get any public/supported way to update they’re drawing to take the smaller height into account.</p>
+
+<h2 id="workarounds-ive-tried">Workarounds I’ve Tried</h2>
+<p>My first thought was to use a custom subclass of UIView as the custom view and in that subclass, override <code class="language-plaintext highlighter-rouge">-layoutIfNeeded</code>. My thought was that if the UIToolbar that my custom view is being added to resizes, surely it would need to tell its subviews that they too need to re-layout. Unfortunately <code class="language-plaintext highlighter-rouge">-layoutIfNeeded</code> is not called when the UIToolbar resizes.</p>
+
+<p>My next guess was to see if my custom view were asked for <code class="language-plaintext highlighter-rouge">-sizeThatFits:</code> or even <code class="language-plaintext highlighter-rouge">-sizeToFit</code>. Again, nothing. Neither one were being called during rotation/UIToolbar resize.</p>
+
+<p>Next I overrode all layout methods I could think of, including <code class="language-plaintext highlighter-rouge">-systemLayoutSizeFittingSize:</code>, <code class="language-plaintext highlighter-rouge">-setNeedsLayout</code> and <code class="language-plaintext highlighter-rouge">-layoutSubviews</code>. Out of all of the layout methods, the only one getting called on rotation/UIToolbar resize was <code class="language-plaintext highlighter-rouge">-layoutSubviews</code>. This isn’t the worst thing ever, but it’s not great either.</p>
+
+<p>With <code class="language-plaintext highlighter-rouge">-layoutSubviews</code> I’m only able to do just that, layout my subviews, <strong>not</strong> layout/resize myself<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup>. So, if I’m to make this work, I could create a container view to set as the custom view of the UIBarButtonItem. This container view could listen for the <code class="language-plaintext highlighter-rouge">-layoutSubviews</code> call, verify that its superview is a UIToolbar and check the toolbar’s height to see how to layout its subviews. This seems odd to me, but I think I might be able to make something like this work.</p>
+
+<h2 id="spelunking-with-hopper--lldb">Spelunking with Hopper &amp; LLDB</h2>
+<p>When I got this far I decided to crack open UIKit with <a href="http://www.hopperapp.com">Hopper</a> to see if I could glean anything from the way that UIBarButtonItems handle this. Looking at the header for UIBarButtonItem you can see that there’s a private flag for something called <code class="language-plaintext highlighter-rouge">isMinibarView</code>. After poking around for awhile I found that UIToolbar has a notion of entering ‘mini-bar’ mode when it’s in a compact-compact environment. The way toolbars handles this is to ask standard UIBarButtonItems for a new view for the current toolbar. Standard UIBarButtonItems then return a new view at the appropriate size.<sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote">2</a></sup> Unfortunately the toolbar skips over UIBarButtonItems with custom views when switching between ‘mini-bar’ mode.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>I’m hoping I’m wrong about all of this and just missed something. If not, I’d really love some sort of public API so that custom views in UIBarButtonItems could play nicely in ‘mini-bar’ mode.<sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote">3</a></sup></p>
+
+<p><strong>Update:</strong> <a href="https://twitter.com/zachwaugh/status/593151837882195968">@zachwaugh</a> pointed out on twitter that my custom view could just override <code class="language-plaintext highlighter-rouge">-traitCollectionDidChange:</code> and check the vertical size class to handle the ‘mini-bar’ mode. I misunderstood traitCollections to return the traitCollection of the messaged view and assumed that, because my custom view’s size does not change, that its traitCollection wouldn’t either. I was wrong about that. (I’ve verified in a sample app.) I’ll have to look into this as a means to fix the issue I was working on. Thank @zachwaugh!</p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>Please tell me if I’m wrong about this assumption, but as far as I know, a view should not resize itself during <code class="language-plaintext highlighter-rouge">-layoutSubviews</code>. It should do that during <code class="language-plaintext highlighter-rouge">-layoutIfNeeded</code>. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2" role="doc-endnote">
+      <p>You can verify this in the debugger. <code class="language-plaintext highlighter-rouge">po</code> a UIToolbars subviews in regular-compact, rotate then <code class="language-plaintext highlighter-rouge">po</code> again. You’ll see that the subviews are actually new views, not just resized. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:3" role="doc-endnote">
+      <p>I’ve filed rdar:///20624041 (UIBarButtonItems with custom views need way to handle compact toolbars). Please dup if you would find this useful. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+	</article>
+</section>
+
+		</div>
+		<footer>
+			<ul>
+				<li><a href="https://twitter.com/jakecarter">@jakecarter</a></li>
+				<li>&copy; 2020 Jake Carter. All rights reserved.</li>
+			</ul>
+		</footer>
+	</body>
+</html>

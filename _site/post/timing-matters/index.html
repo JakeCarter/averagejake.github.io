@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		
+		<title>Timing Matters – Thinking Out Loud</title>	
+		<meta name="description" content="Just a quick heads up, since this just bit me again.">
+	
+		<!-- CSS -->
+		<link rel="stylesheet" href="/assets/main.css">
+		<link rel="canonical" href="http://0.0.0.0:4000/post/timing-matters/">
+
+		<!-- Icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png?v=3">
+		<link rel="shortcut icon" href="/assets/favicon.png?v=2">
+	
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="Thinking Out Loud" href="/feed.xml">	
+		
+		<!-- Micro.blog -->
+		<link href="https://micro.blog/jakecarter" rel="me" />
+		
+		
+	</head>
+	<body>
+		<header>
+            <h1><a href="http://0.0.0.0:4000/post/timing-matters/">Thinking Out Loud</a></h1>
+		</header>
+		<div id="content-wrapper">
+			<section class="content">
+	<article class="post">
+		<h2><a href="/post/timing-matters/">Timing Matters</a></h2>
+		<div class="date">Thu, Nov 03, 2016</div>
+		<ol class="tags">
+		
+			<li><a href="/tag/ios-dev">ios-dev</a></li>
+		
+			<li><a href="/tag/presentation">presentation</a></li>
+		
+		</ol>
+		
+		<p>Just a quick heads up, since this just bit me again.</p>
+
+<p>Let’s try a little experiment. Feel free to follow along in a Swift Playground.</p>
+
+<p>Given the following code, solve for <code class="language-plaintext highlighter-rouge">vc.presentationController</code>.</p>
+
+<pre><code class="language-Swift">let vc = UIViewController()
+vc.modalPresentationStyle = .popover
+vc.presentationController
+</code></pre>
+
+<p>If you guessed <code class="language-plaintext highlighter-rouge">UIPopoverPresentationController</code> you are correct. Let’s try another one.</p>
+
+<pre><code class="language-Swift">let vc = UIViewController()
+vc.presentationController
+</code></pre>
+
+<p>This one is a tiny trick question. The real answer is <code class="language-plaintext highlighter-rouge">_UIFullscreenPresentationController</code> which is a private class, but I would have accepted “some type of full screen presentation controller” given that <code class="language-plaintext highlighter-rouge">.fullScreen</code> is the default <code class="language-plaintext highlighter-rouge">modalPresentationStyle</code>.</p>
+
+<p>Ok, one last one — and the point of this blog post.</p>
+
+<pre><code class="language-Swift">let vc = UIViewController()
+vc.presentationController // Obviously _UIFullscreenPresentationController
+vc.modalPresentationStyle = .popover
+vc.presentationController // ???
+</code></pre>
+
+<p>If you guessed <code class="language-plaintext highlighter-rouge">UIPopoverPresentationController</code> you would be dead wrong. The correct answer is <code class="language-plaintext highlighter-rouge">_UIFullscreenPresentationController</code>. <code class="language-plaintext highlighter-rouge">presentationController</code> is cached when created and the only way I know of to invalidate that is to present the view controller and then dismiss it. This is just a warning that timing matters when it comes to these things.</p>
+
+<p>My workaround is to first make sure the view controller in question is currently presented — by verifying its presentingViewController is non-nil — before asking for its <code class="language-plaintext highlighter-rouge">presentationController</code>.</p>
+
+<p>By the way, I have filed this as a radar. Works as intended, which is fine but I just thought more people might want to know how it works.</p>
+
+	</article>
+</section>
+
+		</div>
+		<footer>
+			<ul>
+				<li><a href="https://twitter.com/jakecarter">@jakecarter</a></li>
+				<li>&copy; 2020 Jake Carter. All rights reserved.</li>
+			</ul>
+		</footer>
+	</body>
+</html>

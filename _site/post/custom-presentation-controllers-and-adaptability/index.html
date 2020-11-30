@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		
+		<title>Custom Presentation Controllers and Adaptability – Thinking Out Loud</title>	
+		<meta name="description" content="Last year, with iOS 8, Apple gave us the ability to customize view controller presentations. Not only can you create a custom transition for a presentation, ...">
+	
+		<!-- CSS -->
+		<link rel="stylesheet" href="/assets/main.css">
+		<link rel="canonical" href="http://0.0.0.0:4000/post/custom-presentation-controllers-and-adaptability/">
+
+		<!-- Icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png?v=3">
+		<link rel="shortcut icon" href="/assets/favicon.png?v=2">
+	
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="Thinking Out Loud" href="/feed.xml">	
+		
+		<!-- Micro.blog -->
+		<link href="https://micro.blog/jakecarter" rel="me" />
+		
+		
+	</head>
+	<body>
+		<header>
+            <h1><a href="http://0.0.0.0:4000/post/custom-presentation-controllers-and-adaptability/">Thinking Out Loud</a></h1>
+		</header>
+		<div id="content-wrapper">
+			<section class="content">
+	<article class="post">
+		<h2><a href="/post/custom-presentation-controllers-and-adaptability/">Custom Presentation Controllers and Adaptability</a></h2>
+		<div class="date">Tue, Aug 04, 2015</div>
+		<ol class="tags">
+		
+			<li><a href="/tag/adaptability">adaptability</a></li>
+		
+			<li><a href="/tag/ios-dev">ios-dev</a></li>
+		
+			<li><a href="/tag/presentation">presentation</a></li>
+		
+		</ol>
+		
+		<p>Last year, with iOS 8, Apple gave us the ability to customize view controller presentations. Not only can you create a custom transition for a presentation, you can now add behavior to deal with adaptability. Recently I hit a wall with using a custom UIPresentationController.</p>
+
+<h2 id="the-setup">The Setup</h2>
+
+<p>I have a view controller that I’d like to present as a normal popover while in a regular width environment. This is easy enough. Just set the .modalPresentationStyle = .Popover and the .popoverPresentationController.barButtonItem = sender and done. You’ll end up with something like this:</p>
+
+<p><img src="popover-regular.png" alt="" /></p>
+
+<p>Luckily the UIPopoverPresentationController knows how to adapt when the presentation enters a compact width environment. You’d get something like so:</p>
+
+<p><img src="popover-compact.png" alt="" /></p>
+
+<p>Unfortunately, I don’t want the stock full screen presentation as my adapted layout. I’d rather something more like this. (We call it half-height internally, even though it’s not truly half-height.)</p>
+
+<p><img src="popover-custom.png" alt="" /></p>
+
+<h2 id="the-problem">The Problem</h2>
+
+<p>After fiddling with this for quite a while, I’ve come to believe that there’s no real way to do this. We have a custom presentation controller that gets us into the ‘half-height’ mode, but there’s no way to switch from the system defined UIPopoverPresentationController to our custom presentation controller. More generally, you can’t switch out the presentation controller during a presentation.</p>
+
+<p>Because of this, if — during a single presentation — you ever want a custom adapted style, you need your custom presentation controller in place from the start. Unfortunately this also seems to mean you can’t fall back on the system defined presentations.</p>
+
+<h2 id="false-hope">False Hope</h2>
+
+<p>To use a custom presentation controller you need to assign a custom object that conforms to UIViewControllerTransitioningDelegate. This object will vend a presentationControllerForPresentedViewController:… when asked. My first attempt at fixing this was to check the sourceViewController.traitCollection.horizontalSizeClass and if .Regular return a UIPopoverPresentationController and if .Compact return my custom presentation controller. Bad news here is that you’re only asked for a presentation controller once per presentation, even if the trait collection changes.</p>
+
+<p>Then I noticed that UIPresentationController defines the -adaptivePresentationStyleForTraitCollection: method. My hope was that if I returned <code class="language-plaintext highlighter-rouge">.Popover</code> from this method while in a regular width trait environment, the system would magically use a popover presentation. This was not the case — which makes sense — but I was grasping at straws at this point. This method is really just a trampoline to the popover controller’s delegate, if it has one.</p>
+
+<h2 id="proposed-solution">Proposed Solution</h2>
+
+<p>Right now the presentation controller and the actual layout on screen are too tightly coupled and the current API doesn’t allow for reuse of the system presentation controllers layouts. First off, the current API for a custom presentation controller really only allows me to vend -frameOfPresentedViewInContainerView. Yes, I can also wrap up the presented view controller into a another view, but my only real customization point for layout is the frame I return. If I want do a system popover in regular width and my custom layout in compact width, I’d have to completely implement a layout and look that mimicked the system popover while in regular width.</p>
+
+<p>Instead, I think it would be nice if the presentation were composable. Perhaps UIPresentationController could vend something like a UIPresentationLayout. This way, instead of the controller being directly responsible from vending a frame, it could defer that logic to a layout object. Then UIKit could define things like UIPopoverPresentationLayout or UIFormSheetPresentationLayout. If the API were more like this, I could simply return a UIPopoverPresentationLayout when in regular width and custom subclass when in compact width.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>As much as I’d like to fully support adaptability, I think right now we’re going to have to resort to dismissing the presentation on size class change. This isn’t great for the user but until custom presentations and adaptability stop fighting, I think it’s our only option.</p>
+
+<p>Filed as rdar:///22136607 (API request for composable presentations.)</p>
+
+	</article>
+</section>
+
+		</div>
+		<footer>
+			<ul>
+				<li><a href="https://twitter.com/jakecarter">@jakecarter</a></li>
+				<li>&copy; 2020 Jake Carter. All rights reserved.</li>
+			</ul>
+		</footer>
+	</body>
+</html>

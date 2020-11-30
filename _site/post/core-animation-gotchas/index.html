@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		
+		<title>Core Animation Gotchas – Thinking Out Loud</title>	
+		<meta name="description" content="A few Core Animation Gotchas that got me last night while giving a demo to my students.">
+	
+		<!-- CSS -->
+		<link rel="stylesheet" href="/assets/main.css">
+		<link rel="canonical" href="http://0.0.0.0:4000/post/core-animation-gotchas/">
+
+		<!-- Icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png?v=3">
+		<link rel="shortcut icon" href="/assets/favicon.png?v=2">
+	
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="Thinking Out Loud" href="/feed.xml">	
+		
+		<!-- Micro.blog -->
+		<link href="https://micro.blog/jakecarter" rel="me" />
+		
+		
+	</head>
+	<body>
+		<header>
+            <h1><a href="http://0.0.0.0:4000/post/core-animation-gotchas/">Thinking Out Loud</a></h1>
+		</header>
+		<div id="content-wrapper">
+			<section class="content">
+	<article class="post">
+		<h2><a href="/post/core-animation-gotchas/">Core Animation Gotchas</a></h2>
+		<div class="date">Tue, Mar 24, 2015</div>
+		<ol class="tags">
+		
+			<li><a href="/tag/core-animation">core-animation</a></li>
+		
+			<li><a href="/tag/ios-dev">ios-dev</a></li>
+		
+			<li><a href="/tag/teaching">teaching</a></li>
+		
+		</ol>
+		
+		<div class="video-container">
+			<iframe src="https://player.vimeo.com/video/123117677" frameborder="0" width="500" height="281" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+		</div>
+		
+		<p>A few Core Animation Gotchas that got me last night while giving a demo to my students.</p>
+
+<p>Recap:</p>
+
+<ul>
+  <li>The top level layer in a CALayer hierarchy does not animate its property changes. This is because animation must exist in a container.</li>
+  <li>Core Animation cannot animate a nil <em>from</em> or <em>to</em> value. Some CALayer properties are nil by default. (Like backgroundColor.)</li>
+</ul>
+
+	</article>
+</section>
+
+		</div>
+		<footer>
+			<ul>
+				<li><a href="https://twitter.com/jakecarter">@jakecarter</a></li>
+				<li>&copy; 2020 Jake Carter. All rights reserved.</li>
+			</ul>
+		</footer>
+	</body>
+</html>
