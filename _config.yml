@@ -1,5 +1,6 @@
 title: Thinking Out Loud
-url: "https://jakecarter.github.io"
+domain: jakecarter.github.io
+url: https://jakecarter.github.io
 permalink: "post/:title/"
 
 # pagination
@@ -13,7 +14,7 @@ plugins: [jekyll-paginate]
 
 # Build settings
 markdown: kramdown
-gems:
+plugins:
   - jekyll-paginate
 exclude:
   - Gemfile

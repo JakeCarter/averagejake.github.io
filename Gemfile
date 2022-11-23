@@ -1,10 +1,8 @@
 source "https://rubygems.org"
 ruby RUBY_VERSION
 
-gem "jekyll", "3.9.0"
+gem "jekyll", "~> 3.9.2"
 
-# This is the default theme for new Jekyll sites. You may change this to anything you like.
-# gem "averagejake-jekyll-theme", :git => "https://github.com/JakeCarter/averagejake-jekyll-theme.git"
-gem "github-pages", "~> 209", group: :jekyll_plugins
+gem "github-pages", "~> 227", group: :jekyll_plugins
+gem "webrick", "~> 1.7"
 gem "jekyll-paginate"
-
