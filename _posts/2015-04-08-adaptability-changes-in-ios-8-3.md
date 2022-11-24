@@ -18,7 +18,9 @@ What this means is that the system defines Any-Compact as irregular and causes t
 ## New in iOS 8.3
 iOS 8.3 thinks about Adaptability a little differently, and it's something to take note of. Adaptability is no longer focused __solely__ on the horizontal size class. Under iOS 8.3, UIAdaptivePresentationControllerDelegate gained two new methods, but we're going to focus on this one:
 
-	- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traitCollection;
+```objc
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traitCollection;
+```
 
 Notice the addition of the UITraitCollection argument. This now means that we can decide what size class combinations deserve an adaptive style.
 
