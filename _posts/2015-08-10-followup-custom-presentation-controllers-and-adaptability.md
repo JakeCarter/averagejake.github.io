@@ -6,7 +6,7 @@ title: Followup – Custom Presentation Controllers and Adaptability
 tags: [adaptability, ios-dev, presentation]
 ---
 
-As the title suggests, this is a followup to my previous post about Custom Presentation Controllers and Adaptability. In that post I argued that the current API for custom presentation controllers is a little lacking when it comes to switching between custom and system provided presentations during the life of a single presentation. A friend of mine proposed a workaround that I’d like to explore. Feel free to grab the code and follow along: CustomAdaptablePresentation
+As the title suggests, this is a followup to my previous post about Custom Presentation Controllers and Adaptability. In that post I argued that the current API for custom presentation controllers is a little lacking when it comes to switching between custom and system provided presentations during the life of a single presentation. A friend of mine proposed a workaround that I’d like to explore. Feel free to grab the code and follow along: [CustomAdaptablePresentation](https://github.com/JakeCarter/CustomAdaptablePresentation)
 
 ## The Workaround
 
